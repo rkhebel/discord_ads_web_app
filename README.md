@@ -20,4 +20,6 @@ looking it up.)
 
 Separately, you'll need to install Postgresql. 
 
-Make sure to change the postgres related env variables in .env to match your environment! 
+Make sure to change the related env variables in .env to match your environment!
+
+Heads up that this project uses Flask blueprints, which basically is a module in the app. I've created a blueprint for advertisers (you can see the advertisers folder under /app) and one for discord_users. Each of these blueprints can contain their own templates, static assets, and routes, allowing for better separation of code. There is also a top level templates, static, and routes.py for shared stuff.

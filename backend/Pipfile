@@ -12,6 +12,7 @@ flask-login = "*"
 flask-wtf = "*"
 email-validator = "*"
 flask-cors = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 

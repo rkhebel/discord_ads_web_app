@@ -24,4 +24,14 @@ Make sure to change the related env variables in .env to match your environment!
 
 `flask run` will start the server.
 
-Heads up that this project uses Flask blueprints, which basically is a module in the app. I've created a blueprint for advertisers (you can see the advertisers folder under /app) and one for discord_users. Each of these blueprints can contain their own templates, static assets, and routes, allowing for better separation of code. There is also a top level templates, static, and routes.py for shared stuff.
+Heads up that this project uses Flask blueprints, which basically is a module in the app. I've created a blueprint for advertiser (you can see the advertiser folder under /app), one for discord, and one for auth (due to the fact that it's shared).
+
+To run migrations:
+
+Update/add the `models.py` folder with whatever you're updating.
+
+Then run `flask db migrate`. This creates a new migration file under `/migrations/verions/`.
+
+Finally, run `flask db upgrade`. This applies the migration.
+
+NOTE: if you update `models.py` but don't run `flask db migrate` and `flask db upgrade`, those changes will not be reflected in the database!

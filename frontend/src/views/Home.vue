@@ -39,14 +39,16 @@
         <v-card-actions>  
           <v-btn
             @click="signup_dialog = false"
+            to="/advertiser/signup"
           >
-            Driver Sign Up
+            Advertiser Sign Up
           </v-btn>
 
           <v-spacer />
 
           <v-btn
             @click="signup_dialog = false"
+            to="/discord/signup"
           >
             Discord Sign Up
           </v-btn>
@@ -62,14 +64,16 @@
         <v-card-actions>  
           <v-btn
             @click="login_dialog = false"
+            to="/advertiser/login"
           >
-            Driver Login
+            Advertiser Login
           </v-btn>
 
           <v-spacer />
 
           <v-btn
             @click="login_dialog = false"
+            to="discord/login"
           >
             Discord Login
           </v-btn>

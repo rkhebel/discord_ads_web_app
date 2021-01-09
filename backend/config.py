@@ -7,6 +7,7 @@ load_dotenv(os.path.join(basedir, '.env'))
 class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = os.getenv('SECRET_KEY')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     TEMPLATES_FOLDER = 'templates'
 

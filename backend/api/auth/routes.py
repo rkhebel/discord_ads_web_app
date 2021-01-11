@@ -1,9 +1,17 @@
 from flask import current_app as app
 from flask import Blueprint, render_template, url_for, redirect, flash, request, session, jsonify
 from ..models import db, User
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_raw_jwt, create_refresh_token, jwt_refresh_token_required
+from .. import jwt
 
+#types of users we can add to our db
 user_types = ['advertiser', 'discord']
+
+#this is how we invalidate jwt tokens
+#note that on reset, we lost track of all invalid tokens. not that important since
+#they only have a life of ~15minutes anyway, but something to keep in mind
+#might want to implement table in db when doing refresh tokens
+blacklist = set()
 
 # Blueprint Configuration
 auth = Blueprint(
@@ -43,7 +51,8 @@ def login():
     return jsonify({'error': 'Incorrect password!'}), 400
 
   access_token = create_access_token(identity=user.id)
-  return jsonify(access_token=access_token), 200
+  refresh_token = create_refresh_token(identity=user.id)
+  return jsonify(access_token=access_token, refresh_token=refresh_token), 200
 
 
 @auth.route('/signup', methods=['POST'])
@@ -79,3 +88,24 @@ def signup():
   db.session.commit()
 
   return jsonify({'success': 'true'}), 200
+
+#checks if jwt is in blacklist before access
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    jti = decrypted_token['jti']
+    return jti in blacklist
+
+@auth.route('/logout', methods=['POST'])
+@jwt_required
+def logout():
+  jti = get_raw_jwt()['jti']
+  blacklist.add(jti)
+  return jsonify({'success': 'true'}), 200
+
+#route to refresh access token
+@auth.route('/refresh', methods=['POST'])
+@jwt_refresh_token_required
+def refresh():
+  current_user = get_jwt_identity()
+  access_token = create_access_token(identity=current_user)
+  return jsonify(access_token=access_token), 200

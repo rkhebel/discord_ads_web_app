@@ -48,7 +48,7 @@ import User from '../models/user';
     },
     computed: {
       loggedIn() {
-        return this.$store.state.auth.status.loggedIn;
+        return this.$store.state.auth.loggedIn;
       }
     },
     created() {

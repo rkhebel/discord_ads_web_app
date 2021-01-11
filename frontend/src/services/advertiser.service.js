@@ -1,6 +1,4 @@
-import authHeader from './auth-header';
-
-const API_URL = 'http://localhost:5000/advertiser/';
+const API_URL = process.env.VUE_APP_API_URL + 'advertiser/';
 
 class AdvertiserService {
 

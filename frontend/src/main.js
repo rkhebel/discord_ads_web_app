@@ -8,11 +8,11 @@ import { required } from 'vee-validate/dist/rules';
 
 Vue.config.productionTip = false;
 
+// this is for vee-validate
 extend('required', {
   ...required,
   message: 'This field is required'
 });
-
 Vue.component('ValidationProvider', ValidationProvider);
 
 new Vue({

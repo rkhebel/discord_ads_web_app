@@ -1,58 +1,63 @@
 import AuthService from '../services/auth.service';
 
-const initialState = { status: { loggedIn: false } };
-
 export const auth = {
   namespaced: true,
-  state: initialState,
+  state: { 
+    loggedIn: false, 
+    access_token: '',
+    refresh_token: ''
+  },
   actions: {
     login({ commit }, user) {
       return AuthService.login(user).then(
-        user => {
-          commit('loginSuccess', user);
-          return Promise.resolve(user);
-        },
-        error => {
+        response_data => {
+          if (response_data.access_token && response_data.refresh_token) {
+            commit('loginSuccess', response_data);
+            return Promise.resolve(response_data);
+          }
           commit('loginFailure');
-          return Promise.reject(error);
+          return Promise.resolve(response_data);
         }
       );
     },
     logout({ commit }) {
-      AuthService.logout();
-      commit('logout');
+      return AuthService.logout().then( response_data => {
+        commit('logout');
+        return Promise.resolve(response_data);
+      })
     },
     signup({ commit }, user) {
       return AuthService.signup(user).then(
-        response => {
-          commit('signupSuccess');
-          return Promise.resolve(response);
-        },
-        error => {
+        response_data => {
+          if (!response_data.error) {
+            commit('signupSuccess');
+            return Promise.resolve(response_data);
+          }
           commit('signupFailure');
-          return Promise.reject(error);
+          return Promise.reject(response_data);
         }
       );
     }
   },
   mutations: {
-    loginSuccess(state, user) {
-      state.status.loggedIn = true;
-      state.user = user;
+    loginSuccess(state, response_data) {
+      state.loggedIn = true;
+      state.access_token = response_data.access_token;
+      state.refresh_token = response_data.refresh_token;
     },
     loginFailure(state) {
-      state.status.loggedIn = false;
-      state.user = null;
+      state.loggedIn = false;
     },
     logout(state) {
-      state.status.loggedIn = false;
-      state.user = null;
+      state.loggedIn = false;
+      state.access_token = '';
+      state.refresh_token = '';
     },
     signupSuccess(state) {
-      state.status.loggedIn = false;
+      state.loggedIn = false;
     },
     signupFailure(state) {
-      state.status.loggedIn = false;
+      state.loggedIn = false;
     }
   }
 };

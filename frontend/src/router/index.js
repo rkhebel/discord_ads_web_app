@@ -1,16 +1,17 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
-import AdvertiserLogin from '../views/AdvertiserLogin.vue';
-import AdvertiserSignup from '../views/AdvertiserSignup.vue';
-import DiscordLogin from '../views/DiscordLogin.vue';
-import DiscordSignup from '../views/DiscordSignup';
-import AdvertiserHome from '../views/AdvertiserHome';
-import DiscordHome from '../views/DiscordHome';
+import Home from '../views/shared/Home.vue';
+import AdvertiserLogin from '../views/advertiser/AdvertiserLogin.vue';
+import AdvertiserSignup from '../views/advertiser/AdvertiserSignup.vue';
+import DiscordLogin from '../views/discord/DiscordLogin.vue';
+import DiscordSignup from '../views/discord/DiscordSignup';
+import AdvertiserHome from '../views/advertiser/AdvertiserHome';
+import DiscordHome from '../views/discord/DiscordHome';
 import store from '../store';
-import LoginPage from '../views/LoginPage';
-import SignupPage from '../views/SignupPage';
-import ForbiddenPage from '../views/ForbiddenPage'
+import LoginPage from '../views/shared/LoginPage';
+import SignupPage from '../views/shared/SignupPage';
+import ForbiddenPage from '../views/shared/ForbiddenPage'
+import InvalidPermissionsPage from '../views/shared/InvalidPermissionsPage'
 
 Vue.use(VueRouter);
 
@@ -52,19 +53,25 @@ const routes = [
     path: '/advertiser/',
     component: AdvertiserHome,
     meta: {
-      requireAuth: true
+      requireAuth: true,
+      permissions: ['advertiser']
     }
   },
   {
     path: '/discord/',
     component: DiscordHome,
     meta: {
-      requireAuth: true
+      requireAuth: true,
+      permissions: ['discord']
     }
   },
   {
     path: '/forbidden',
     component: ForbiddenPage
+  },
+  {
+    path: '/invalidpermissions',
+    component: InvalidPermissionsPage
   }
 ];
 
@@ -74,14 +81,26 @@ const router = new VueRouter({
 
 //check to see if we're logged in before accessing restricted pages
 router.beforeEach((to, from, next) => {
+  // check if auth is required
   if(to.matched.some(record => record.meta.requireAuth)) {
+    // check if we're logged in
     if (store.state.auth.loggedIn) {
-      next()
-      return
+      // check if we have permissions
+      if (to.meta.permissions.includes(store.state.auth.user_type)) {
+        next();
+      }
+      else {
+        // if no permissions, redirect to their home
+        next('/invalidpermissions');
+      }
     }
-    next('/forbidden')
+    else {
+      // if not logged in , redirect to forbidden
+      next('/forbidden');
+    }
   } else {
-    next()
+    // if no auth required, just go
+    next();
   }
 });
 

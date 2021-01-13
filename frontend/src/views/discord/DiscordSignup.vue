@@ -5,7 +5,7 @@
 </template>
 
 <script>
-  import SignupForm from '../components/SignupForm.vue'
+  import SignupForm from '../../components/shared/SignupForm.vue'
   export default {
     name: 'DiscordSignup',
     components: {

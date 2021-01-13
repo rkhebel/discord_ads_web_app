@@ -3,9 +3,15 @@ from flask import Blueprint, render_template, url_for, redirect, flash, request,
 from ..models import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_raw_jwt, create_refresh_token, jwt_refresh_token_required
 from .. import jwt
+from ..utils import json_required
+import re
 
 #types of users we can add to our db
-user_types = ['advertiser', 'discord']
+USER_TYPES = ['advertiser', 'discord']
+
+#used for validation
+EMAIL_REGEX = re.compile(r"[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?")
+
 
 #this is how we invalidate jwt tokens
 #note that on reset, we lost track of all invalid tokens. not that important since
@@ -22,25 +28,23 @@ auth = Blueprint(
 )
 
 @auth.route('/login', methods=['POST'])
+@json_required(
+  required_fields = {
+    'email': 'Please provide email',
+    'password': 'Please provide password',
+    'user_type': 'Please provide user type'
+  },
+  validations = [
+    ('email', 'Please provide a valid email', lambda email: EMAIL_REGEX.match(email)),
+    ('user_type', 'Please provide a valid user type', lambda user_type: user_type in USER_TYPES)
+  ]
+)
 def login():
-  if not request.is_json:
-    return jsonify({'error': 'Missing JSON in request'}), 400
-
   email = request.json.get('email', None)
   password = request.json.get('password', None)
   user_type = request.json.get('user_type', None)
 
-  if not email:
-    return jsonify({'error': 'Missing email parameter'}), 400
-  if not password:
-    return jsonify({'error': 'Missing password parameter'}), 400
-  if not user_type:
-    return jsonify({'error': 'Missing user_type parameter'}), 400
-  if user_type not in user_types:
-    return jsonify({'error': 'Incorrect user type'}), 400
-
   user = User.query.filter_by(email=email, user_type=user_type).first()
-
 
   if not user:
     return jsonify({'error': 'No user associated with that email.'}), 400
@@ -52,25 +56,29 @@ def login():
 
   access_token = create_access_token(identity=user.id)
   refresh_token = create_refresh_token(identity=user.id)
-  return jsonify(access_token=access_token, refresh_token=refresh_token), 200
+  user_type = user.user_type
+  return jsonify(access_token=access_token, refresh_token=refresh_token, user_type=user_type), 200
 
 
 @auth.route('/signup', methods=['POST'])
-def signup():
-  if not request.is_json:
-    return jsonify({'error': 'Missing JSON in request'}), 400
-  
+@json_required(
+  required_fields = {
+    'first_name': 'Please provide first name',
+    'last_name': 'Please provide last name',
+    'email': 'Please provide email',
+    'password': 'Please provide password',
+    'user_type': 'Please provide user type'
+  },
+  validations = [
+    ('user_type', 'Please provide a valid user type', lambda user_type: user_type in USER_TYPES)
+  ]
+)
+def signup():  
   first_name = request.json.get('first_name', None)
   last_name = request.json.get('last_name', None)
   email = request.json.get('email', None)
   password = request.json.get('password', None)
   user_type = request.json.get('user_type', None)
-
-  if not first_name or not last_name or not email or not password or not user_type:
-    return jsonify({'error': 'Missing parameter'}), 400
-
-  if user_type not in user_types:
-    return jsonify({'error': 'Incorrect user type'}), 400
 
   user = User.query.filter_by(email=email, user_type=user_type).first()
 
@@ -92,8 +100,8 @@ def signup():
 #checks if jwt is in blacklist before access
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
-    jti = decrypted_token['jti']
-    return jti in blacklist
+  jti = decrypted_token['jti']
+  return jti in blacklist
 
 @auth.route('/logout', methods=['POST'])
 @jwt_required
@@ -103,7 +111,7 @@ def logout():
   return jsonify({'success': 'true'}), 200
 
 #route to refresh access token
-@auth.route('/refresh', methods=['POST'])
+@auth.route('/refresh', methods=['GET'])
 @jwt_refresh_token_required
 def refresh():
   current_user = get_jwt_identity()

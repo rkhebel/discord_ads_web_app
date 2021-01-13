@@ -11,6 +11,10 @@ const API_URL = process.env.VUE_APP_API_URL + 'auth/';
 axios.interceptors.request.use(
   config => {
     let access_token = store.state.auth.access_token;
+    //if we're refreshing our token, make sure to use refresh token instead
+    if (config.url.endsWith('/auth/refresh')) {
+      access_token = store.state.auth.refresh_token;
+    }
     if (access_token) {
       config.headers['Authorization'] = 'Bearer ' + access_token;
     }
@@ -35,14 +39,12 @@ axios.interceptors.response.use(
     }
     if (error.response.status === 401 && !original_request._retry) {
       original_request._retry = true;
-      let refresh_token = store.state.auth.refresh_token;
-      return axios.post(API_URL + 'refresh', {
-        "refresh_token": refresh_token
-      }).then(response => {
-        if (response.status === 201) {
+      return axios.get(API_URL + 'refresh').then(response => {
+        if (response.status === 200) {
+          console.log('refreshed token!');
           store.state.auth.access_token = response.access_token;
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + store.state.auth.access_token;
-          return axios(original_request);
+          return original_request;
         }
       })
     }

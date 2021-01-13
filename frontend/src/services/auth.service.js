@@ -1,5 +1,8 @@
 // This file contains methods that perform auth functions by connecting to the api.
 // User data is stored in local storage
+
+//using this axios because i added interceptors to automatically add headers on requests and intercept 401s
+// on response in case we need to refresh access token
 import axios from './axios.service'
 
 const API_URL = process.env.VUE_APP_API_URL + 'auth/';
@@ -15,6 +18,7 @@ class AuthService {
       return response.data;
     }).catch(error => {
       console.log(error);
+      return Promise.reject(error);
     });
   }
 
@@ -25,6 +29,7 @@ class AuthService {
       return response.data;
     }).catch(error => {
       console.log(error);
+      return Promise.reject(error);
     })
   }
 
@@ -40,6 +45,7 @@ class AuthService {
       return response.data;
     }).catch(error => {
       console.log(error);
+      return Promise.reject(error);
     })
   }
 }

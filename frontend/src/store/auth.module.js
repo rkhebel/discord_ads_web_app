@@ -5,13 +5,14 @@ export const auth = {
   state: { 
     loggedIn: false, 
     access_token: '',
-    refresh_token: ''
+    refresh_token: '',
+    user_type: ''
   },
   actions: {
     login({ commit }, user) {
       return AuthService.login(user).then(
         response_data => {
-          if (response_data.access_token && response_data.refresh_token) {
+          if (response_data.access_token && response_data.refresh_token && response_data.user_type) {
             commit('loginSuccess', response_data);
             return Promise.resolve(response_data);
           }
@@ -44,6 +45,7 @@ export const auth = {
       state.loggedIn = true;
       state.access_token = response_data.access_token;
       state.refresh_token = response_data.refresh_token;
+      state.user_type = response_data.user_type;
     },
     loginFailure(state) {
       state.loggedIn = false;
@@ -52,6 +54,7 @@ export const auth = {
       state.loggedIn = false;
       state.access_token = '';
       state.refresh_token = '';
+      state.user_type = '';
     },
     signupSuccess(state) {
       state.loggedIn = false;

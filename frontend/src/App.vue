@@ -1,52 +1,7 @@
 <template>
   <v-app>
-    <v-app-bar app v-if="!loggedIn">
-      <router-link to="/">
-        <v-img
-          class="d-flex align-center mr-4"
-          alt="Discord Ads Logo"
-          contain
-          src="./assets/logo.png"
-          transition="scale-transition"
-          width="40"
-        />
-      </router-link>
-      <v-btn class="mr-4" to="/">
-        <span class="mr-2">Home</span>
-        <v-icon>mdi-home</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn class="mr-4" to="/login">
-        <span class="mr-2">Log In</span>
-        <v-icon>mdi-login</v-icon>
-      </v-btn>
-
-      <v-btn to="/signup">
-        <span class="mr-2">Sign Up</span>
-        <v-icon>mdi-clipboard-account</v-icon>
-      </v-btn>
-    </v-app-bar>
-    <v-app-bar app v-if="loggedIn">
-      <router-link to="/">
-        <v-img
-          class="d-flex align-center mr-4"
-          alt="Discord Ads Logo"
-          contain
-          src="./assets/logo.png"
-          transition="scale-transition"
-          width="40"
-        />
-      </router-link>
-      <v-btn class="mr-4" to="/">
-        <span class="mr-2">Home</span>
-        <v-icon>mdi-home</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn class="mr-4" @click="logout">
-        <span class="mr-2">Logout</span>
-        <v-icon>mdi-logout</v-icon>
-      </v-btn>
-    </v-app-bar>
+    <DefaultNav v-if="!loggedIn"></DefaultNav>
+    <AuthenticatedNav v-if="loggedIn" :user_type="userType"></AuthenticatedNav>
     <v-main>
           <router-view/>
     </v-main>
@@ -54,22 +9,27 @@
 </template>
 
 <script>
+import DefaultNav from './components/shared/DefaultNav'
+import AuthenticatedNav from './components/shared/AuthenticatedNav'
+
 export default {
   name: 'App',
+  components: {
+    DefaultNav,
+    AuthenticatedNav
+  },
+  data() {
+    return  {
+    }
+  },
   computed: {
     loggedIn() {
       return this.$store.state.auth.loggedIn;
-    }
+    },
+    userType() {
+      return this.$store.state.auth.user_type;
+    },
   },
-  methods: {
-    logout() {
-      this.$store.dispatch('auth/logout').then(response => {
-        if (!response['error']) {
-          this.$router.push('/')
-        }
-      })
-    }
-  }
 }
 </script>
 

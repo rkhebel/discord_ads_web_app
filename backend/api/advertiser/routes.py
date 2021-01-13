@@ -6,9 +6,8 @@ from .. import jwt
 
 # Blueprint Configuration
 advertiser = Blueprint(
-    'advertiser', __name__,
-    template_folder='templates',
-    static_folder='static',
+    'advertiser', 
+    __name__,
     url_prefix='/advertiser'
 )
 
@@ -24,3 +23,23 @@ def unauthorized_response(callback):
 @jwt_required
 def dashboard():
   return jsonify({"msg": "This is not public yeet!"})
+
+@advertiser.route('/advertisements', methods=['GET'])
+@jwt_required
+def get_advertisements():
+  return
+
+@advertiser.route('/advertisements', methods=['POST'])
+@jwt_required
+def create_advertisements():
+  return
+
+@advertiser.route('/advertisements', methods=['PUT'])
+@jwt_required
+def update_advertisements():
+  return
+
+@advertiser.route('/advertisements', methods=['DELETE'])
+@jwt_required
+def delete_advertisements():
+  return

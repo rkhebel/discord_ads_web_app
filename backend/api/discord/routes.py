@@ -6,9 +6,8 @@ from .. import jwt
 
 # Blueprint Configuration
 discord = Blueprint(
-    'discord', __name__,
-    template_folder='templates',
-    static_folder='static',
+    'discord', 
+    __name__,
     url_prefix='/discord'
 )
 
@@ -25,7 +24,7 @@ def unauthorized_response(callback):
 def dashboard():
   return jsonify({"msg": "This is not public yeet!"})
 
-@discord.route('/', methods=['GET'])
+@discord.route('/profile', methods=['GET'])
 @jwt_required
 def profile():
   return jsonify({"msg": "This is not public yeet!"})

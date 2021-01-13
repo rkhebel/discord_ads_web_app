@@ -5,7 +5,7 @@
 </template>
 
 <script>
-  import LoginForm from '../components/LoginForm.vue'
+  import LoginForm from '../../components/shared/LoginForm.vue'
   export default {
     name: 'DiscordLogin',
     components: {

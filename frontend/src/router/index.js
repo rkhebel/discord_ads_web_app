@@ -12,6 +12,7 @@ import LoginPage from '../views/shared/LoginPage';
 import SignupPage from '../views/shared/SignupPage';
 import ForbiddenPage from '../views/shared/ForbiddenPage'
 import InvalidPermissionsPage from '../views/shared/InvalidPermissionsPage'
+import AdvertiserAdvertisements from '../views/advertiser/AdvertiserAdvertisements'
 
 Vue.use(VueRouter);
 
@@ -72,6 +73,14 @@ const routes = [
   {
     path: '/invalidpermissions',
     component: InvalidPermissionsPage
+  },
+  {
+    path: '/advertiser/advertisements',
+    component: AdvertiserAdvertisements,
+    meta: {
+      requireAuth: true,
+      permissions: ['advertiser']
+    }
   }
 ];
 

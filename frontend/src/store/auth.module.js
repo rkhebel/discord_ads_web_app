@@ -14,17 +14,24 @@ export const auth = {
         response_data => {
           if (response_data.access_token && response_data.refresh_token && response_data.user_type) {
             commit('loginSuccess', response_data);
-            return Promise.resolve(response_data);
           }
-          commit('loginFailure');
+          else {
+            commit('loginFailure');
+          }
           return Promise.resolve(response_data);
         }
-      );
+      ).catch(error => {
+        commit('loginFailure');
+        return Promise.reject(error);
+      });
     },
     logout({ commit }) {
-      return AuthService.logout().then( response_data => {
+      return AuthService.logout().then(response_data => {
         commit('logout');
         return Promise.resolve(response_data);
+      }).catch(error => {
+        commit('logout');
+        return Promise.reject(error);
       })
     },
     signup({ commit }, user) {
@@ -32,12 +39,16 @@ export const auth = {
         response_data => {
           if (!response_data.error) {
             commit('signupSuccess');
-            return Promise.resolve(response_data);
           }
-          commit('signupFailure');
-          return Promise.reject(response_data);
+          else {
+            commit('signupFailure');
+          }
+          return Promise.resolve(response_data);
         }
-      );
+      ).catch(error => {
+        commit('signupFailure');
+        return Promise.reject(error);
+      });
     }
   },
   mutations: {

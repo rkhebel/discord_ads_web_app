@@ -32,8 +32,12 @@ axios.interceptors.response.use(
   response => {
     return response;
   }, function (error) {
+    if (!error.response) {
+      return Promise.reject(error);
+    }
     let original_request = error.config;
     if (error.response.status === 401 && original_request.url.endsWith('/auth/refresh')) {
+      console.log('refresh token not valid, routing to log in');
       router.push('/login')
       return Promise.reject(error);
     }
@@ -42,12 +46,14 @@ axios.interceptors.response.use(
       return axios.get(API_URL + 'refresh').then(response => {
         if (response.status === 200) {
           console.log('refreshed token!');
-          store.state.auth.access_token = response.access_token;
+          store.state.auth.access_token = response.data.access_token;
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + store.state.auth.access_token;
-          return original_request;
+          // retry the original reqeust with updated header
+          return axios(original_request);
         }
       })
     }
+    return Promise.reject(error);
   }
 )
 

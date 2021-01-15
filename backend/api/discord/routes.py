@@ -1,8 +1,35 @@
-from flask import current_app as app
-from flask import Blueprint, render_template, url_for, redirect, flash, request, session, jsonify
+from flask import Blueprint, request, session, jsonify
 from ..models import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from .. import jwt
+import sys
+from traceback import format_exception
+from flask_jwt_extended.exceptions import (
+    JWTDecodeError, NoAuthorizationError, InvalidHeaderError, WrongTokenError,
+    RevokedTokenError, FreshTokenRequired, CSRFError, UserLoadError,
+    UserClaimsVerificationError
+)
+from jwt import (
+    ExpiredSignatureError, InvalidTokenError, InvalidAudienceError,
+    InvalidIssuerError, DecodeError
+)
+
+JWT_EXCEPTIONS = (
+  JWTDecodeError, 
+  NoAuthorizationError, 
+  InvalidHeaderError, 
+  WrongTokenError,
+  RevokedTokenError, 
+  FreshTokenRequired, 
+  CSRFError, 
+  UserLoadError,
+  UserClaimsVerificationError,
+  ExpiredSignatureError, 
+  InvalidTokenError, 
+  InvalidAudienceError,
+  InvalidIssuerError, 
+  DecodeError
+)
 
 # Blueprint Configuration
 discord = Blueprint(
@@ -11,21 +38,16 @@ discord = Blueprint(
     url_prefix='/discord'
 )
 
-@jwt.unauthorized_loader
-def unauthorized_response(callback):
-    return jsonify({
-        'ok': False,
-        'message': 'Missing Authorization Header'
-    }), 401
-
+@discord.before_request
+@jwt_required
+def is_authorized():
+  pass
 
 @discord.route('/', methods=['GET'])
-@jwt_required
 def dashboard():
   return jsonify({"msg": "This is not public yeet!"})
 
 @discord.route('/profile', methods=['GET'])
-@jwt_required
 def profile():
-  return jsonify({"msg": "This is not public yeet!"})
+  return jsonify({"msg": "This is not public yeet!"}), 200
 

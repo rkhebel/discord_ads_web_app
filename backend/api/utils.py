@@ -34,7 +34,7 @@ def json_required(func=None, required_fields={}, validations=[]):
   @functools.wraps(func)
   def decorated_function(*args, **kwargs):
     try:
-      
+
       if request.json is None:
         return bad_json_error_response()
 
@@ -42,7 +42,7 @@ def json_required(func=None, required_fields={}, validations=[]):
       errors = []
 
       def check_required_fields(data, fields):
-        for field, requirements in fields.iteritems():
+        for field, requirements in fields.items():
           nested_fields = type(requirements) == dict
           if data.get(field) in (None, ''):
             if nested_fields:
@@ -70,10 +70,10 @@ def json_required(func=None, required_fields={}, validations=[]):
     except Exception:
       #For internal use, nice to have the traceback in the API response for debugging
       #Probably don't want to include for public APIs
-      # etype, value, tb = sys.exc_info()
-      # error_info = ''.join(format_exception(etype, value, tb))
-      # return api_error_response(code=500, message="Internal Error validating API input", errors=[{'message':error_info}])
-      return
+      etype, value, tb = sys.exc_info()
+      error_info = ''.join(format_exception(etype, value, tb))
+      print(error_info)
+      return api_error_response(code = 500, message="JSON Validation Error")
 
     return func(*args, **kwargs)
 

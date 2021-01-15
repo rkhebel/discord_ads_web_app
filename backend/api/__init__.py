@@ -30,12 +30,12 @@ def create_app():
     with app.app_context():
         # Include our Routes
         from .auth import routes as auth_routes
-        from .advertiser import routes as advertiser_routes
         from .discord import routes as discord_routes
+        from .advertiser import routes as advertiser_routes
 
         # Register Blueprints
         app.register_blueprint(auth_routes.auth)
-        app.register_blueprint(advertiser_routes.advertiser)
         app.register_blueprint(discord_routes.discord)
+        app.register_blueprint(advertiser_routes.advertiser)
 
         return app

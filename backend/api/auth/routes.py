@@ -1,17 +1,32 @@
-from flask import current_app as app
 from flask import Blueprint, render_template, url_for, redirect, flash, request, session, jsonify
 from ..models import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_raw_jwt, create_refresh_token, jwt_refresh_token_required
 from .. import jwt
 from ..utils import json_required
 import re
+from flask_jwt_extended.exceptions import (
+    JWTDecodeError, NoAuthorizationError, InvalidHeaderError, WrongTokenError,
+    RevokedTokenError, FreshTokenRequired, CSRFError, UserLoadError,
+    UserClaimsVerificationError
+)
+
+JWT_EXCEPTIONS = (
+  JWTDecodeError, 
+  NoAuthorizationError, 
+  InvalidHeaderError, 
+  WrongTokenError,
+  RevokedTokenError, 
+  FreshTokenRequired, 
+  CSRFError, 
+  UserLoadError,
+  UserClaimsVerificationError
+)
 
 #types of users we can add to our db
 USER_TYPES = ['advertiser', 'discord']
 
 #used for validation
-EMAIL_REGEX = re.compile(r"[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?")
-
+EMAIL_REGEX = re.compile(r"[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?")\
 
 #this is how we invalidate jwt tokens
 #note that on reset, we lost track of all invalid tokens. not that important since
@@ -21,11 +36,28 @@ blacklist = set()
 
 # Blueprint Configuration
 auth = Blueprint(
-    'auth', __name__,
-    template_folder='templates',
-    static_folder='static',
+    'auth', 
+    __name__,
     url_prefix='/auth'
 )
+
+#catch all for server errors
+#and jwt unauthorized errors
+# @auth.errorhandler(Exception)
+# def server_error(err):
+#   if isinstance(err, JWT_EXCEPTIONS):
+#     return jsonify({
+#       'ok': False,
+#       'message': 'Missing Authorization Header'
+#     }), 401
+#   #for logging
+#   etype, value, tb = sys.exc_info()
+#   error_info = ''.join(format_exception(etype, value, tb))
+#   print(error_info)
+#   return jsonify({
+#     'error': 'Internal server error', 
+#     'success': False
+#   }), 500
 
 @auth.route('/login', methods=['POST'])
 @json_required(

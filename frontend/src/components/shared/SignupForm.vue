@@ -78,9 +78,8 @@ import User from '../../models/user';
                 this.dialog_text = response['error'];
               }
             },
-            error => {
+            () => {
               // something happens on error, probably display message
-              console.log(error);
             });
         }
       }

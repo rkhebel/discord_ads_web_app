@@ -51,6 +51,8 @@ class User(db.Model):
 
   # RELATIONSHIPS
   advertisements = db.relationship('Advertisement', backref='user', cascade = 'all, delete') #deletes all ads when account is deleted
+  discord_servers = db.relationship('DiscordServer', backref='user', cascade = 'all, delete')
+  settings = db.relationship('DiscordSetting', backref='user', cascade = 'all, delete')
 
   # METHODS
   def set_password(self, password):
@@ -98,6 +100,9 @@ class Advertisement(db.Model):
     nullable = False,
     unique = False
   )
+  tags = db.Column(
+    db.ARRAY(db.String)
+  )
   created_on = db.Column(
     db.DateTime,
     default=datetime.datetime.now()
@@ -110,4 +115,83 @@ class Advertisement(db.Model):
   # METHODS
   def __repr__(self):
     return '<Advertisement {}>'.format(self.name)
+
+class DiscordServer(db.Model):
+
+  __tablename__ = 'discord_servers'
+
+  #COLUMNS
+  id = db.Column(
+    db.Integer,
+    primary_key=True
+  )
+  user_id = db.Column(
+    db.Integer,
+    db.ForeignKey('users.id')
+  )
+  guild_id = db.Column(
+    db.BigInteger,
+    nullable = False,
+    unique = True
+  )
+  name = db.Column(
+    db.String(1024),
+    nullable = False
+  )
+  description = db.Column(
+    db.String(1024),
+    nullable = True
+  )
+  created_on = db.Column(
+    db.DateTime,
+    default=datetime.datetime.now()
+  )
+  updated_at = db.Column(
+    db.DateTime,
+    onupdate = datetime.datetime.now()
+  )
+
+  # METHODS
+  def __repr__(self):
+    return '<Discord Server {}>'.format(self.name)
+
+class DiscordSetting(db.Model):
+
+  __tablename__ = 'discord_settings'
+
+  # COLUMNS
+  id = db.Column(
+    db.Integer,
+    primary_key=True
+  )
+  user_id = db.Column(
+    db.Integer,
+    db.ForeignKey('users.id'),
+    nullable = False
+  )
+  ad_frequency = db.Column(
+    db.Interval
+  )
+  ad_start_time = db.Column(
+    db.Time
+  )
+  ad_end_time = db.Column(
+    db.Time
+  )
+  ad_tags = db.Column(
+    db.ARRAY(db.String)
+  )
+  created_on = db.Column(
+    db.DateTime,
+    default=datetime.datetime.now()
+  )
+  updated_at = db.Column(
+    db.DateTime,
+    onupdate = datetime.datetime.now()
+  )
+
+  # METHODS
+  def __repr__(self):
+    return '<Discord Settings {}>'.format(self.id)
+
 

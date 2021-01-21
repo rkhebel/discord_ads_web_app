@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 
 db = SQLAlchemy()
 jwt = JWTManager()
-migrate = Migrate()
+migrate = Migrate(compare_type=True)
 
 def create_app():
     """Initialize the core application."""
